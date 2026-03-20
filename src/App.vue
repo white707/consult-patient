@@ -2,13 +2,10 @@
 import { useUserStore } from './stores'
 import { Button } from 'vant'
 const store = useUserStore()
+import { request } from './utils/request'
 import axios from './utils/request'
-
 const getUser = () => {
-  axios.request({
-    url: '/patient/myUser',
-    method: 'get',
-  })
+  request('/patient/myUser', 'get')
 }
 const login = () => {
   axios
