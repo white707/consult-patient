@@ -1,8 +1,32 @@
 <script setup lang="ts">
 import { useUserStore } from './stores'
 import { Button } from 'vant'
-
 const store = useUserStore()
+import axios from './utils/request'
+
+const getUser = () => {
+  axios.request({
+    url: '/patient/myUser',
+    method: 'get',
+  })
+}
+const login = () => {
+  axios
+    .request({
+      url: '/login/password',
+      method: 'post',
+      data: {
+        mobile: '13211112222',
+        password: 'abc12345',
+      },
+    })
+    .then((res) => {
+      console.log(12345, res)
+    })
+    .catch((err) => {
+      console.log(404, err)
+    })
+}
 </script>
 
 <template>
@@ -11,5 +35,6 @@ const store = useUserStore()
     登录
   </Button>
   <Button @click="store.delUser()" type="primary"> 退出 </Button>
-  <Button type="primary"> 重置密码 </Button>
+  <Button type="primary" @click="getUser"> 获取用户信息 </Button>
+  <Button type="primary" @click="login"> 用户denglu </Button>
 </template>
