@@ -1,9 +1,21 @@
 <script setup lang="ts">
 import { NavBar as VanNavBar } from 'vant'
+//通过props传入标题和右边的文本
+defineProps<{
+  title?: string
+  rightText?: string
+}>()
+//自定义emit来触发自定义事件
+const emit = defineEmits<{
+  (e: 'click-right'): void
+}>()
+//点击右边的文本时触发自定义事件
+const onClickRight = () => {
+  emit('click-right')
+}
 </script>
-
 <template>
-  <VanNavBar title="登录" fixed left-arrow right-text="注册" />
+  <VanNavBar :title="title" fixed left-arrow :right-text="rightText" @click-right="onClickRight" />
 </template>
 <style scoped lang="scss">
 :deep() {
