@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import CpNavBar from '../../components/cpNavBar.vue'
+import CpIcon from '../../components/cpIcon.vue'
 import {
   Icon as VanIcon,
   Form as VanForm,
@@ -61,6 +62,8 @@ const onSend = async () => {
 onUnmounted(() => {
   clearInterval(timer)
 })
+//密码的可见切换
+const isShow = ref(false)
 </script>
 
 <template>
@@ -90,8 +93,12 @@ onUnmounted(() => {
         v-model="password"
         :rules="passwordRules"
         placeholder="请输入密码"
-        type="password"
-      ></van-field>
+        :type="isShow ? 'text' : 'password'"
+      >
+        <template #button>
+          <cpIcon :name="`login-eye-${isShow ? 'on' : 'off'}`" @click="isShow = !isShow"></cpIcon>
+        </template>
+      </van-field>
       <van-field v-else :rules="codeRule" v-model="code" placeholder="短信验证码" type="password">
         <template #button>
           <span @click="onSend" class="btn-send">{{
@@ -115,6 +122,7 @@ onUnmounted(() => {
       <div class="cp-cell">
         <a href="javascript:;">忘记密码？</a>
       </div>
+      <!-- <CpIcon name="consult-alipay"></CpIcon> -->
     </van-form>
     <!-- 底部 -->
     <div class="login-other">
