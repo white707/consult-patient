@@ -7,8 +7,31 @@ import {
   Checkbox as VanCheckbox,
   Button as VanButton,
   Divider as VanDivider,
-  Toast as VanToast,
+  showToast,
+  showSuccessToast,
 } from 'vant'
+import { login as loginPassword } from '@/services/user'
+import { ref } from 'vue'
+import { useUserStore } from '@/stores'
+import { mobileRules, passwordRules, codeRule } from '@/types/rules'
+import { useRouter, useRoute } from 'vue-router'
+
+const mobile = ref('')
+const password = ref('')
+const agree = ref(false)
+const store = useUserStore()
+const router = useRouter()
+const route = useRoute()
+const login = async () => {
+  if (!agree.value) return showToast('请先同意用户协议和隐私条款')
+  const res = await loginPassword(mobile.value, password.value)
+  store.setUser(res.data)
+  showSuccessToast('登录成功')
+  router.replace((route.query.returnUrl as string) || '/user')
+}
+//短信登陆信息切换
+const isPasswordLogin = ref(true)
+const code = ref('')
 </script>
 
 <template>
@@ -16,18 +39,36 @@ import {
     <CpNavBar right-text="注册" @click-right="$router.push('/register')"></CpNavBar>
     <!-- 头部 -->
     <div class="login-head">
-      <h3>密码登录</h3>
+      <h3>{{ isPasswordLogin ? '密码登录' : '短信验证码登录' }}</h3>
       <a href="javascript:;">
-        <span>短信验证码登录</span>
+        <span @click="isPasswordLogin = !isPasswordLogin">{{
+          isPasswordLogin ? '短信验证码登录' : '密码登录'
+        }}</span>
         <van-icon name="arrow"></van-icon>
       </a>
     </div>
     <!-- 表单 -->
     <van-form autocomplete="off">
-      <van-field placeholder="请输入手机号" type="tel"></van-field>
-      <van-field placeholder="请输入密码" type="password"></van-field>
+      <van-field
+        v-model="mobile"
+        :rules="mobileRules"
+        placeholder="请输入手机号"
+        type="tel"
+      ></van-field>
+      <van-field
+        v-if="isPasswordLogin"
+        v-model="password"
+        :rules="passwordRules"
+        placeholder="请输入密码"
+        type="password"
+      ></van-field>
+      <van-field v-else :rules="codeRule" v-model="code" placeholder="短信验证码" type="password">
+        <template #button>
+          <span class="btn-send">发送验证码</span>
+        </template>
+      </van-field>
       <div class="cp-cell">
-        <van-checkbox>
+        <van-checkbox v-model="agree">
           <span>我已同意</span>
           <a href="javascript:;">用户协议</a>
           <span>及</span>
@@ -35,7 +76,9 @@ import {
         </van-checkbox>
       </div>
       <div class="cp-cell">
-        <van-button block round type="primary">登 录</van-button>
+        <van-button @click="login" native-type="submit" block round type="primary"
+          >登 录</van-button
+        >
       </div>
       <div class="cp-cell">
         <a href="javascript:;">忘记密码？</a>
