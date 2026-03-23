@@ -9,12 +9,14 @@ import {
   Divider as VanDivider,
   showToast,
   showSuccessToast,
+  type FormInstance,
 } from 'vant'
 import { login as loginPassword } from '@/services/user'
-import { ref } from 'vue'
+import { onUnmounted, ref } from 'vue'
 import { useUserStore } from '@/stores'
 import { mobileRules, passwordRules, codeRule } from '@/types/rules'
 import { useRouter, useRoute } from 'vue-router'
+import { sendCode, loginByCode } from '@/services/user'
 
 const mobile = ref('')
 const password = ref('')
@@ -24,7 +26,10 @@ const router = useRouter()
 const route = useRoute()
 const login = async () => {
   if (!agree.value) return showToast('请先同意用户协议和隐私条款')
-  const res = await loginPassword(mobile.value, password.value)
+  //进行登录（合并验证码登录）
+  const res = isPasswordLogin
+    ? await loginPassword(mobile.value, password.value)
+    : await loginByCode(mobile.value, code.value)
   store.setUser(res.data)
   showSuccessToast('登录成功')
   router.replace((route.query.returnUrl as string) || '/user')
@@ -32,6 +37,30 @@ const login = async () => {
 //短信登陆信息切换
 const isPasswordLogin = ref(true)
 const code = ref('')
+//发送验证码
+const time = ref(0)
+const form = ref<FormInstance>()
+let timer: number
+const onSend = async () => {
+  //验证倒计时，和手机号
+  if (time.value > 0) return showToast('请稍后再发送')
+  await form.value?.validate('mobile')
+  const res = await sendCode(mobile.value, 'login')
+  console.log(res)
+  showToast('验证码发送成功')
+  time.value = 60
+  //开始倒计时
+  if (timer) clearInterval(timer)
+  timer = setInterval(() => {
+    time.value--
+    if (time.value <= 0) {
+      clearInterval(timer)
+    }
+  }, 1000)
+}
+onUnmounted(() => {
+  clearInterval(timer)
+})
 </script>
 
 <template>
@@ -48,8 +77,9 @@ const code = ref('')
       </a>
     </div>
     <!-- 表单 -->
-    <van-form autocomplete="off">
+    <van-form autocomplete="off" ref="form">
       <van-field
+        name="mobile"
         v-model="mobile"
         :rules="mobileRules"
         placeholder="请输入手机号"
@@ -64,7 +94,9 @@ const code = ref('')
       ></van-field>
       <van-field v-else :rules="codeRule" v-model="code" placeholder="短信验证码" type="password">
         <template #button>
-          <span class="btn-send">发送验证码</span>
+          <span @click="onSend" class="btn-send">{{
+            time > 0 ? `${time}秒后重新发送` : '发送验证码'
+          }}</span>
         </template>
       </van-field>
       <div class="cp-cell">
