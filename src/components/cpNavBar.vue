@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { NavBar as VanNavBar } from 'vant'
+import { useRouter } from 'vue-router'
 //通过props传入标题和右边的文本
-defineProps<{
+const props = defineProps<{
   title?: string
   rightText?: string
+  back?: () => void
 }>()
 //自定义emit来触发自定义事件
 const emit = defineEmits<{
@@ -13,9 +15,27 @@ const emit = defineEmits<{
 const onClickRight = () => {
   emit('click-right')
 }
+const router = useRouter()
+const onClickLeft = () => {
+  if (props.back) {
+    return props.back()
+  }
+  if (history.state.back) {
+    router.back()
+  } else {
+    router.push('/')
+  }
+}
 </script>
 <template>
-  <VanNavBar :title="title" fixed left-arrow :right-text="rightText" @click-right="onClickRight" />
+  <VanNavBar
+    @click-left="onClickLeft"
+    :title="title"
+    fixed
+    left-arrow
+    :right-text="rightText"
+    @click-right="onClickRight"
+  />
 </template>
 <style scoped lang="scss">
 :deep() {
