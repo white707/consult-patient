@@ -4,16 +4,22 @@ import cpIcon from '@/components/cpIcon.vue'
 import { getPatientList } from '@/services/user'
 import { onMounted, ref } from 'vue'
 import type { PatientList } from '@/types/user'
+import CpRadioButton from '@/components/cpRadioButton.vue'
 
 const list = ref<PatientList>([])
 const loadlist = async () => {
   const res = await getPatientList()
-  console.log(res)
+  //   console.log(res)
   list.value = res.data
 }
 onMounted(() => {
   loadlist()
 })
+const options = [
+  { label: '男', value: 1 },
+  { label: '女', value: 0 },
+]
+const gender = ref(1)
 </script>
 
 <template>
@@ -36,6 +42,8 @@ onMounted(() => {
         <p>添加患者</p>
       </div>
       <div class="patient-tip">最多可添加 6 人</div>
+      <!-- 测试 -->
+      <cp-radio-button :options="options" v-model="gender" />
     </div>
   </div>
 </template>
