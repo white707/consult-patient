@@ -1,6 +1,6 @@
 //密码登录
 import { request } from '@/utils/request'
-import type { CodeType, User, UserInfo } from '@/types/user'
+import type { CodeType, User, UserInfo, PatientList } from '@/types/user'
 export const login = (mobile: string, password: string) => {
   return request<User>('login/password', 'post', { mobile, password })
 }
@@ -15,4 +15,8 @@ export const loginByCode = (mobile: string, code: string) => {
 //获取用户信息
 export const getUserInfo = () => {
   return request<UserInfo>('patient/myUser')
+}
+//获取患者列表
+export const getPatientList = () => {
+  return request<PatientList>('patient/mylist')
 }

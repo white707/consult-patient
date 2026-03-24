@@ -10,6 +10,11 @@ const router = createRouter({
       meta: { title: '登录' },
     },
     {
+      path: '/user/patient',
+      component: () => import('@/views/user/patientPage.vue'),
+      meta: { title: '家庭档案' },
+    },
+    {
       meta: { title: '首页' },
       path: '/',
       redirect: '/home',
