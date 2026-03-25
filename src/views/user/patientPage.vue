@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import cpNavBar from '@/components/cpNavBar.vue'
 import cpIcon from '@/components/cpIcon.vue'
-import { getPatientList } from '@/services/user'
+import { getPatientList, addPatient } from '@/services/user'
 import { onMounted, ref } from 'vue'
 import type { PatientList, Patient } from '@/types/user'
 import CpRadioButton from '@/components/cpRadioButton.vue'
@@ -61,11 +61,17 @@ const onSubmit = async () => {
   //对性别进行校验，取出身份证倒数第二位%2是否为0，0为男，1为女
   const gender = Number(patient.value.idCard.slice(-2, -1)) % 2
   if (gender !== patient.value.gender) {
-    showConfirmDialog({
+    await showConfirmDialog({
       title: '提示',
       message: '性别与身份证号不一致是否继续提交？',
     })
   }
+  //添加患者
+  await addPatient(patient.value)
+  //添加成功后，刷新列表
+  showToast('添加成功')
+  loadlist()
+  show.value = false
 }
 </script>
 
