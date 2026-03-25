@@ -28,3 +28,7 @@ export const addPatient = (patient: Patient) => {
 export const editPatient = (patient: Patient) => {
   return request<Patient>('patient/update', 'put', patient)
 }
+//删除患者
+export const deletePatient = (id: string) => {
+  return request(`patient/del/${id}`, 'delete')
+}

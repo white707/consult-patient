@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import cpNavBar from '@/components/cpNavBar.vue'
 import cpIcon from '@/components/cpIcon.vue'
-import { getPatientList, addPatient, editPatient } from '@/services/user'
+import { getPatientList, addPatient, editPatient, deletePatient } from '@/services/user'
 import { onMounted, ref } from 'vue'
 import type { PatientList, Patient } from '@/types/user'
 import CpRadioButton from '@/components/cpRadioButton.vue'
 import {
+  ActionBarButton as VanActionBarButton,
+  ActionBar as VanActionBar,
   Popup as VanPopup,
   Form as VanForm,
   Field as VanField,
@@ -88,6 +90,20 @@ const onSubmit = async () => {
   loadlist()
   show.value = false
 }
+
+//删除患者
+const remove = async () => {
+  if (patient.value.id) {
+    await showConfirmDialog({
+      title: '提示',
+      message: '确认删除患者吗？',
+    })
+    await deletePatient(patient.value.id)
+    showToast('删除成功')
+    loadlist()
+    show.value = false
+  }
+}
 </script>
 
 <template>
@@ -143,12 +159,26 @@ const onSubmit = async () => {
             </template>
           </van-field>
         </van-form>
+        <!-- 删除按钮组件 -->
+        <van-action-bar v-if="patient.id">
+          <van-action-bar-button text="删除" @click="remove"></van-action-bar-button>
+        </van-action-bar>
       </van-popup>
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
+// 底部操作栏
+.van-action-bar {
+  padding: 0 10px;
+  margin-bottom: 10px;
+  .van-button {
+    color: var(--cp-price);
+    background-color: var(--cp-bg);
+  }
+}
+
 .patient-page {
   padding: 46px 0 80px;
   :deep() {
