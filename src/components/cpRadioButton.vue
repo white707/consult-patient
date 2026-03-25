@@ -1,19 +1,3 @@
-<!-- <script setup lang="ts">
-//计数器
-//通过v-model解析为modelValue，@update:modelValue更新count
-//通过defineprops接受modelValue属性
-defineProps({
-  modelValue: {
-    type: Number,
-    default: 0,
-  },
-})
-//通过defineEmits定义事件
-defineEmits<{ (e: 'update:modelValue', count: number): void }>()
-</script>
-<template class="cp-radio-button">
-  计数器{{ modelValue }}<button @click="$emit('update:modelValue', modelValue + 1)">jia</button>
-</template> -->
 <script setup lang="ts">
 defineProps<{
   options: { label: string; value: number | string }[]
@@ -60,6 +44,7 @@ defineEmits<{
     &.active {
       border-color: var(--cp-primary);
       background-color: var(--cp-plain);
+      color: var(--cp-primary);
     }
   }
 }
