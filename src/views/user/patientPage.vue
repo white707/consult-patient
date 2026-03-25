@@ -10,8 +10,12 @@ import {
   Form as VanForm,
   Field as VanField,
   Checkbox as VanCheckbox,
+  type FormInstance,
+  showToast,
+  showConfirmDialog,
 } from 'vant'
-import { reactive, computed } from 'vue'
+import { computed } from 'vue'
+import { nameRule, identifyRule } from '@/types/rules'
 
 const list = ref<PatientList>([])
 const loadlist = async () => {
@@ -48,6 +52,21 @@ const defaultFlag = computed({
   get: () => (patient.value.defaultFlag === 1 ? true : false),
   set: (value) => (patient.value.defaultFlag = value ? 1 : 0),
 })
+
+//进行提交
+const form = ref<FormInstance>()
+const onSubmit = async () => {
+  // 验证表单 validate方法进行校验
+  await form.value?.validate()
+  //对性别进行校验，取出身份证倒数第二位%2是否为0，0为男，1为女
+  const gender = Number(patient.value.idCard.slice(-2, -1)) % 2
+  if (gender !== patient.value.gender) {
+    showConfirmDialog({
+      title: '提示',
+      message: '性别与身份证号不一致是否继续提交？',
+    })
+  }
+}
 </script>
 
 <template>
@@ -72,10 +91,25 @@ const defaultFlag = computed({
       <div class="patient-tip">最多可添加 6 人</div>
       <!-- 使用popup组件 -->
       <van-popup position="right" v-model:show="show">
-        <cp-nav-bar title="添加患者" right-text="保存" :back="() => (show = false)"></cp-nav-bar>
+        <cp-nav-bar
+          @click-right="onSubmit"
+          title="添加患者"
+          right-text="保存"
+          :back="() => (show = false)"
+        ></cp-nav-bar>
         <van-form autocomplete="off" ref="form">
-          <van-field v-model="patient.name" label="真实姓名" placeholder="请输入真实姓名" />
-          <van-field v-model="patient.idCard" label="身份证号" placeholder="请输入身份证号" />
+          <van-field
+            :rules="nameRule"
+            v-model="patient.name"
+            label="真实姓名"
+            placeholder="请输入真实姓名"
+          />
+          <van-field
+            :rules="identifyRule"
+            v-model="patient.idCard"
+            label="身份证号"
+            placeholder="请输入身份证号"
+          />
           <van-field label="性别" class="pb4">
             <!-- 单选按钮组件 -->
             <template #input>
