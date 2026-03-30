@@ -2,6 +2,11 @@
 import { List as VanList } from 'vant'
 import KnowledgeCard from './knowledgeCard.vue'
 import { ref } from 'vue'
+import type { KnowledgeType } from '@/types/consulet'
+
+defineProps<{
+  type: KnowledgeType
+}>()
 //加载中的状态
 const loading = ref(false)
 //是否完全加载完数据

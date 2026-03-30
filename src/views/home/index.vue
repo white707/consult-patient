@@ -87,10 +87,10 @@ const active = ref(1)
     </div>
     <!-- 分类 -->
     <VanTabs sticky shrink :active="active">
-      <VanTab title="关注"><knowledge-list /></VanTab>
-      <VanTab title="推荐"><knowledge-list /></VanTab>
-      <VanTab title="减脂"><knowledge-list /></VanTab>
-      <VanTab title="饮食"><knowledge-list /></VanTab>
+      <VanTab title="关注"><knowledge-list type="like" /></VanTab>
+      <VanTab title="推荐"><knowledge-list type="recommend" /></VanTab>
+      <VanTab title="减脂"><knowledge-list type="fatReduction" /></VanTab>
+      <VanTab title="饮食"><knowledge-list type="food" /></VanTab>
     </VanTabs>
   </div>
 </template>
