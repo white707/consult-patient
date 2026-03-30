@@ -9,6 +9,7 @@ import {
 } from 'vant'
 import CpIcon from '@/components/cpIcon.vue'
 import { ref } from 'vue'
+import KnowledgeList from './components/knowledgeList.vue'
 const active = ref(1)
 </script>
 
@@ -86,10 +87,10 @@ const active = ref(1)
     </div>
     <!-- 分类 -->
     <VanTabs sticky shrink :active="active">
-      <VanTab title="关注"></VanTab>
-      <VanTab title="推荐"></VanTab>
-      <VanTab title="减脂"></VanTab>
-      <VanTab title="饮食"></VanTab>
+      <VanTab title="关注"><knowledge-list /></VanTab>
+      <VanTab title="推荐"><knowledge-list /></VanTab>
+      <VanTab title="减脂"><knowledge-list /></VanTab>
+      <VanTab title="饮食"><knowledge-list /></VanTab>
     </VanTabs>
   </div>
 </template>
