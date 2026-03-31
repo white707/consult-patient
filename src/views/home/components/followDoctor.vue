@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import doctorCard from './doctorCard.vue'
+import { useWindowSize } from '@vueuse/core'
 import { Swipe as VanSwipe, SwipeItem as VanSwipeItem } from 'vant'
+const { width } = useWindowSize()
 </script>
 
 <template>
@@ -11,7 +13,7 @@ import { Swipe as VanSwipe, SwipeItem as VanSwipeItem } from 'vant'
     </div>
     <div class="body">
       <!-- swipe 组件 -->
-      <van-swipe :width="150" :showIndicators="false" :loop="false">
+      <van-swipe :width="(150 / 375) * width" :showIndicators="false" :loop="false">
         <van-swipe-item v-for="(item, i) in 5" :key="i">
           <doctorCard />
         </van-swipe-item>
