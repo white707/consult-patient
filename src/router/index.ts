@@ -25,6 +25,11 @@ const router = createRouter({
       meta: { title: '选择科室' },
     },
     {
+      path: '/consult/illness',
+      component: () => import('@/views/consult/consultIllness.vue'),
+      meta: { title: '病情描述' },
+    },
+    {
       meta: { title: '首页' },
       path: '/',
       redirect: '/home',

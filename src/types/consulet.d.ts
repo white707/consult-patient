@@ -98,3 +98,8 @@ type TopDep = {
   name: string
   child: SubDep[]
 }
+//病情描述
+type consultIllness = Pick<
+  PartialConsult,
+  'illnessDesc' | 'illnessTime' | 'consultFlag' | 'pictures'
+>
