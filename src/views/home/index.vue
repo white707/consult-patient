@@ -12,7 +12,7 @@ import { ref } from 'vue'
 import FollowDoctor from './components/followDoctor.vue'
 import KnowledgeList from './components/knowledgeList.vue'
 const active = ref(1)
-import { useConsultStore } from '@/stores/modules/consult'
+import { useConsultStore } from '@/stores'
 import { ConsultType } from '@/enums'
 const store = useConsultStore()
 </script>
