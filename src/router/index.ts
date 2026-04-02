@@ -20,6 +20,11 @@ const router = createRouter({
       meta: { title: '急速问诊' },
     },
     {
+      path: '/consult/dep',
+      component: () => import('@/views/consult/consultDep.vue'),
+      meta: { title: '选择科室' },
+    },
+    {
       meta: { title: '首页' },
       path: '/',
       redirect: '/home',
