@@ -5,6 +5,7 @@ import cpRadioButton from '@/components/cpRadioButton.vue'
 import { Field as VanField } from 'vant'
 import { IllnessTime } from '@/enums'
 import { ref } from 'vue'
+import { Uploader as VanUploader } from 'vant'
 import type { consultIllness } from '@/types/consulet'
 
 const timeOptions = [
@@ -26,6 +27,12 @@ const form = ref<consultIllness>({
   consultFlag: undefined,
   pictures: [],
 })
+
+//监听图片上传事件
+const fileList = ref([])
+
+const onafterRead = () => {}
+const onDeleteImg = () => {}
 </script>
 
 <template>
@@ -55,6 +62,19 @@ const form = ref<consultIllness>({
       <div class="item">
         <p>此次病情是否去医院就诊过？</p>
         <cp-radio-button :options="flagOptions" v-model="form.consultFlag" />
+      </div>
+      <!-- 上传组件 -->
+      <div class="illness-img">
+        <van-uploader
+          @delete="onDeleteImg"
+          :after-read="onafterRead"
+          v-model="fileList"
+          upload-icon="pgoto-o"
+          upload-text="上传图片"
+          max-count="9"
+          :max-size="5 * 1024 * 1024"
+        />
+        <p class="tip">上传内容仅医生可见,最多9张图,最大5MB</p>
       </div>
     </div>
   </div>
@@ -112,6 +132,43 @@ const form = ref<consultIllness>({
     > p {
       color: var(--cp-text3);
       padding: 15px 0;
+    }
+  }
+}
+.illness-img {
+  padding-top: 16px;
+  margin-bottom: 40px;
+  display: flex;
+  align-items: center;
+  .tip {
+    font-size: 12px;
+    color: var(--cp-tip);
+  }
+  ::v-deep() {
+    .van-uploader {
+      &__preview {
+        &-delete {
+          left: -6px;
+          top: -6px;
+          border-radius: 50%;
+          background-color: var(--cp-primary);
+          width: 20px;
+          height: 20px;
+          &-icon {
+            transform: scale(0.9) translate(-22%, 22%);
+          }
+        }
+        &-image {
+          border-radius: 8px;
+          overflow: hidden;
+        }
+      }
+      &__upload {
+        border-radius: 8px;
+      }
+      &__upload-icon {
+        color: var(--cp-text3);
+      }
     }
   }
 }
