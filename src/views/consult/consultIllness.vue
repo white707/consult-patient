@@ -2,11 +2,12 @@
 import cpNavBar from '@/components/cpNavBar.vue'
 import cpIcon from '@/components/cpIcon.vue'
 import cpRadioButton from '@/components/cpRadioButton.vue'
-import { Field as VanField } from 'vant'
+import { Field as VanField, type UploaderAfterRead, type UploaderFileListItem } from 'vant'
 import { IllnessTime } from '@/enums'
 import { ref } from 'vue'
 import { Uploader as VanUploader } from 'vant'
 import type { consultIllness } from '@/types/consulet'
+import { uploadImage } from '@/services/cosnult'
 
 const timeOptions = [
   { label: '一周内', value: IllnessTime.Week },
@@ -31,8 +32,29 @@ const form = ref<consultIllness>({
 //监听图片上传事件
 const fileList = ref([])
 
-const onafterRead = () => {}
-const onDeleteImg = () => {}
+const onAfterRead: UploaderAfterRead = (item) => {
+  //图片上传
+  if (Array.isArray(item)) return
+  if (!item.file) return
+
+  item.status = 'uploading'
+  item.message = '上传中...'
+  uploadImage(item.file)
+    .then((res) => {
+      item.status = 'done'
+      item.message = undefined
+      item.url = res.data.url
+      //同步数据
+      form.value.pictures?.push(res.data)
+    })
+    .catch(() => {
+      item.status = 'failed'
+      item.message = '上传失败'
+    })
+}
+const onDeleteImg = (item: UploaderFileListItem) => {
+  form.value.pictures = form.value.pictures?.filter((pic) => pic.url !== item.url)
+}
 </script>
 
 <template>
@@ -67,7 +89,7 @@ const onDeleteImg = () => {}
       <div class="illness-img">
         <van-uploader
           @delete="onDeleteImg"
-          :after-read="onafterRead"
+          :after-read="onAfterRead"
           v-model="fileList"
           upload-icon="pgoto-o"
           upload-text="上传图片"
