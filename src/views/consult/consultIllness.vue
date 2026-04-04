@@ -2,12 +2,19 @@
 import cpNavBar from '@/components/cpNavBar.vue'
 import cpIcon from '@/components/cpIcon.vue'
 import cpRadioButton from '@/components/cpRadioButton.vue'
-import { Field as VanField, type UploaderAfterRead, type UploaderFileListItem } from 'vant'
+import {
+  showToast,
+  Field as VanField,
+  type UploaderAfterRead,
+  type UploaderFileListItem,
+} from 'vant'
 import { IllnessTime } from '@/enums'
-import { ref } from 'vue'
-import { Uploader as VanUploader } from 'vant'
-import type { consultIllness } from '@/types/consulet'
+import { ref, computed } from 'vue'
+import { Uploader as VanUploader, Button as VanButton } from 'vant'
+import type { consultIllness, Image } from '@/types/consulet'
 import { uploadImage } from '@/services/cosnult'
+import { useConsultStore } from '@/stores'
+import { useRouter } from 'vue-router'
 
 const timeOptions = [
   { label: '一周内', value: IllnessTime.Week },
@@ -30,13 +37,12 @@ const form = ref<consultIllness>({
 })
 
 //监听图片上传事件
-const fileList = ref([])
+const fileList = ref<Image[]>([])
 
 const onAfterRead: UploaderAfterRead = (item) => {
-  //图片上传
   if (Array.isArray(item)) return
   if (!item.file) return
-
+  // 开始上传
   item.status = 'uploading'
   item.message = '上传中...'
   uploadImage(item.file)
@@ -44,7 +50,6 @@ const onAfterRead: UploaderAfterRead = (item) => {
       item.status = 'done'
       item.message = undefined
       item.url = res.data.url
-      //同步数据
       form.value.pictures?.push(res.data)
     })
     .catch(() => {
@@ -52,8 +57,25 @@ const onAfterRead: UploaderAfterRead = (item) => {
       item.message = '上传失败'
     })
 }
+
 const onDeleteImg = (item: UploaderFileListItem) => {
   form.value.pictures = form.value.pictures?.filter((pic) => pic.url !== item.url)
+}
+
+const disabled = computed(() => {
+  return !form.value.illnessDesc || !form.value.illnessTime || form.value.consultFlag === undefined
+})
+
+const store = useConsultStore()
+const router = useRouter()
+const next = () => {
+  if (!form.value.illnessDesc) return showToast('请详细描述您的病情，病情描述不能为空')
+  if (form.value.illnessTime === undefined) return showToast('请选择本次患病多久了')
+  if (form.value.consultFlag === undefined) return showToast('请选择此次病情是否去医院就诊过')
+  //记录病情
+  store.setIllness(form.value)
+  //路由跳转
+  router.push('/user/patient?isChange=1')
 }
 </script>
 
@@ -98,11 +120,23 @@ const onDeleteImg = (item: UploaderFileListItem) => {
         />
         <p class="tip">上传内容仅医生可见,最多9张图,最大5MB</p>
       </div>
+      <van-button @click="next" :class="{ disabled }" type="primary" round block>下一步</van-button>
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
+.van-button {
+  font-size: 16px;
+  margin-bottom: 30px;
+  &.disabled {
+    opacity: 1;
+    background: #fafafa;
+    color: #d9dbde;
+    border: #fafafa;
+  }
+}
+
 .consult-illness-page {
   padding-top: 46px;
 }
