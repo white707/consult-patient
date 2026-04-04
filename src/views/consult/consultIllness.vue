@@ -3,13 +3,14 @@ import cpNavBar from '@/components/cpNavBar.vue'
 import cpIcon from '@/components/cpIcon.vue'
 import cpRadioButton from '@/components/cpRadioButton.vue'
 import {
+  showConfirmDialog,
   showToast,
   Field as VanField,
   type UploaderAfterRead,
   type UploaderFileListItem,
 } from 'vant'
 import { IllnessTime } from '@/enums'
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { Uploader as VanUploader, Button as VanButton } from 'vant'
 import type { consultIllness, Image } from '@/types/consulet'
 import { uploadImage } from '@/services/cosnult'
@@ -77,6 +78,23 @@ const next = () => {
   //路由跳转
   router.push('/user/patient?isChange=1')
 }
+
+//数据的回显
+onMounted(() => {
+  if (store.consult.illnessDesc) {
+    showConfirmDialog({
+      title: '温馨提示',
+      message: '是否继续编辑之前填写的病情信息？',
+      closeOnPopstate: false,
+    }).then(() => {
+      form.value.illnessDesc = store.consult.illnessDesc || ''
+      form.value.illnessTime = store.consult.illnessTime
+      form.value.consultFlag = store.consult.consultFlag
+      form.value.pictures = store.consult.pictures || []
+      fileList.value = store.consult.pictures || []
+    })
+  }
+})
 </script>
 
 <template>
