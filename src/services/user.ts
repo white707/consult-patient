@@ -34,5 +34,5 @@ export const deletePatient = (id: string) => {
 }
 //获取患者详情
 export const getPatientDetail = (id: string) => {
-  return request<Patient>(`patient/detail/${id}`, 'get')
+  return request<Patient>(`patient/info/${id}`, 'get')
 }

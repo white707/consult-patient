@@ -1,13 +1,17 @@
 <script setup lang="ts">
 import cpNavBar from '@/components/cpNavBar.vue'
 import {
+  showToast,
+  ActionSheet as VanActionSheet,
   Cell as VanCell,
   CellGroup as VanCellGroup,
   Checkbox as VanCheckbox,
   SubmitBar as VanSubmitBar,
+  Button as VanButton,
 } from 'vant'
+import cpIcon from '@/components/cpIcon.vue'
 import type { ConsultOrderPreData } from '@/types/consulet'
-import { getConsultOrderPre } from '@/services/cosnult'
+import { createConsultOrder, getConsultOrderPre } from '@/services/cosnult'
 import { onMounted, ref } from 'vue'
 import { useConsultStore } from '@/stores'
 import type { Patient } from '@/types/user'
@@ -34,13 +38,30 @@ onMounted(() => {
   loadData()
   loadPatient()
 })
+
+const agree = ref(false)
+const show = ref(false)
+const loading = ref(false)
+const orderId = ref('')
+const submit = async () => {
+  if (!agree.value) return showToast('请同意支付协议')
+  //发送生成订单的请求
+  loading.value = true
+  const res = await createConsultOrder(store.consult)
+  loading.value = false
+  store.clear()
+  orderId.value = res.data.id
+  //   console.log(orderId.value)
+  show.value = true
+}
+const payType = ref<0 | 1>()
 </script>
 
 <template>
-  <div class="consult-pay-page">
+  <div class="consult-pay-page" v-if="payInfo && patient">
     <cp-nav-bar title="支付" />
     <div class="pay-info">
-      <p class="tit">图文问诊 49 元</p>
+      <p class="tit">图文问诊 {{ payInfo.payment }} 元</p>
       <img class="img" src="@/assets/avatar-doctor.svg" />
       <p class="desc">
         <span>极速问诊</span>
@@ -48,19 +69,50 @@ onMounted(() => {
       </p>
     </div>
     <van-cell-group>
-      <van-cell title="优惠券" value="-¥10.00" />
-      <van-cell title="积分抵扣" value="-¥10.00" />
-      <van-cell title="实付款" value="¥29.00" class="pay-price" />
+      <van-cell title="优惠券" :value="`-¥${payInfo.couponDeduction}`" />
+      <van-cell title="积分抵扣" :value="`-¥${payInfo.pointDeduction}`" />
+      <van-cell title="实付款" :value="`¥${payInfo.actualPayment}`" class="pay-price" />
     </van-cell-group>
     <div class="pay-space"></div>
     <van-cell-group>
-      <van-cell title="患者信息" value="李富贵 | 男 | 30岁"></van-cell>
-      <van-cell title="病情描述" label="头痛，头晕，恶心"></van-cell>
+      <van-cell
+        title="患者信息"
+        :value="`${patient.name} | ${patient.genderValue} | ${patient.age}岁`"
+      />
+      <van-cell title="病情描述" :label="store.consult.illnessDesc"></van-cell>
     </van-cell-group>
     <div class="pay-schema">
-      <van-checkbox>我已同意 <span class="text">支付协议</span></van-checkbox>
+      <van-checkbox v-model="agree">我已同意 <span class="text">支付协议</span></van-checkbox>
     </div>
-    <van-submit-bar button-type="primary" :price="2900" button-text="立即支付" text-align="left" />
+    <van-submit-bar
+      @click="submit"
+      button-type="primary"
+      :price="payInfo.actualPayment * 100"
+      button-text="立即支付"
+      text-align="left"
+      :loading="loading"
+    />
+    <!-- 支付方式选择-支付抽屉 -->
+    <van-action-sheet v-model:show="show" title="支付方式选择">
+      <div class="content">
+        <div class="pay-type">
+          <p class="amount">￥{{ payInfo.actualPayment.toFixed(2) }}</p>
+          <van-cell-group>
+            <van-cell title="微信支付" @click="payType = 0">
+              <template #icon><cp-icon name="consult-wechat" /></template>
+              <template #extra><van-checkbox :checked="payType === 0" /></template>
+            </van-cell>
+            <van-cell title="支付宝支付" @click="payType = 1">
+              <template #icon><cp-icon name="consult-alipay" /></template>
+              <template #extra><van-checkbox :checked="payType === 1" /></template>
+            </van-cell>
+          </van-cell-group>
+          <div class="btn">
+            <van-button type="primary" round block>立即支付</van-button>
+          </div>
+        </div>
+      </div>
+    </van-action-sheet>
   </div>
 </template>
 

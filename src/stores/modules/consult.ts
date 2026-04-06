@@ -34,7 +34,11 @@ export const useConsultStore = defineStore(
     const setPatient = (patientId: string) => {
       consult.value.patientId = patientId
     }
-    return { consult, setType, setIllnessType, setDep, setIllness, setPatient }
+    //清理数据
+    const clear = () => {
+      consult.value = {}
+    }
+    return { consult, setType, setIllnessType, setDep, setIllness, setPatient, clear }
   },
   { persist: true },
 )

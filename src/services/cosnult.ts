@@ -7,6 +7,7 @@ import type {
   Image,
   ConsultOrderPreParams,
   ConsultOrderPreData,
+  PartialConsult,
 } from '@/types/consulet'
 
 export const getKnowledgePage = (params: KnowledgeParams) => {
@@ -24,4 +25,8 @@ export const uploadImage = (file: File) => {
 //获取预支付信息
 export const getConsultOrderPre = (params: ConsultOrderPreParams) => {
   return request<ConsultOrderPreData>('patient/consult/order/pre', 'get', params)
+}
+//创建问诊订单
+export const createConsultOrder = (data: PartialConsult) => {
+  return request<{ id: string }>('patient/consult/order', 'post', data)
 }
