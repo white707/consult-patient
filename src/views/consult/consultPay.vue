@@ -8,16 +8,20 @@ import {
   Checkbox as VanCheckbox,
   SubmitBar as VanSubmitBar,
   Button as VanButton,
+  showConfirmDialog,
+  showDialog,
 } from 'vant'
 import cpIcon from '@/components/cpIcon.vue'
-import type { ConsultOrderPreData } from '@/types/consulet'
+import type { ConsultOrderPreData, PartialConsult } from '@/types/consulet'
 import { createConsultOrder, getConsultOrderPre } from '@/services/cosnult'
 import { onMounted, ref } from 'vue'
 import { useConsultStore } from '@/stores'
 import type { Patient } from '@/types/user'
 import { getPatientDetail } from '@/services/user'
+import { onBeforeRouteLeave, useRouter } from 'vue-router'
 
 const store = useConsultStore()
+const router = useRouter()
 //获取预支付信息
 const payInfo = ref<ConsultOrderPreData>()
 const loadData = async () => {
@@ -34,7 +38,29 @@ const loadPatient = async () => {
   const res = await getPatientDetail(store.consult.patientId)
   patient.value = res.data
 }
+
+type key = keyof PartialConsult
+
 onMounted(() => {
+  //生成订单信息不完整时，提示用户完善信息
+  const validKeys: key[] = [
+    'illnessTime',
+    'illnessDesc',
+    'depId',
+    'illnessType',
+    'type',
+    'consultFlag',
+    'patientId',
+  ]
+  const valid = validKeys.every((key) => store.consult[key] !== undefined)
+  if (!valid)
+    return showDialog({
+      title: '温馨提醒',
+      message: '问诊信息不完整请重新填写，如有未支付的问诊订单可在问诊记录中继续支付！',
+      closeOnPopstate: false,
+    }).then(() => {
+      router.push('/')
+    })
   loadData()
   loadPatient()
 })
@@ -55,6 +81,28 @@ const submit = async () => {
   show.value = true
 }
 const payType = ref<0 | 1>()
+
+//用户引导
+onBeforeRouteLeave(() => {
+  if (orderId.value) return false
+})
+
+const onClose = () => {
+  return showConfirmDialog({
+    title: '确认关闭吗？',
+    message: '关闭后将无法继续支付,无法获得医生回复',
+    confirmButtonText: '继续支付',
+    cancelButtonText: '狠心离开',
+  })
+    .then(() => {
+      return false
+    })
+    .catch(() => {
+      orderId.value = ''
+      router.push('/user/consult')
+      return true
+    })
+}
 </script>
 
 <template>
@@ -93,7 +141,13 @@ const payType = ref<0 | 1>()
       :loading="loading"
     />
     <!-- 支付方式选择-支付抽屉 -->
-    <van-action-sheet v-model:show="show" title="支付方式选择">
+    <van-action-sheet
+      :closeable="false"
+      :before-close="onClose"
+      v-model:show="show"
+      title="支付方式选择"
+      :close-on-popstate="false"
+    >
       <div class="content">
         <div class="pay-type">
           <p class="amount">￥{{ payInfo.actualPayment.toFixed(2) }}</p>
