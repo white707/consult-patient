@@ -30,3 +30,11 @@ export const getConsultOrderPre = (params: ConsultOrderPreParams) => {
 export const createConsultOrder = (data: PartialConsult) => {
   return request<{ id: string }>('patient/consult/order', 'post', data)
 }
+//获得支付url
+export const getConsultOrderPayUrl = (params: {
+  paymentMethod: 0 | 1
+  orderId: string
+  payCallback: string
+}) => {
+  return request<{ payUrl: string }>('patient/consult/pay', 'post', params)
+}

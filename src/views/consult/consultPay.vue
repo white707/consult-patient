@@ -10,10 +10,11 @@ import {
   Button as VanButton,
   showConfirmDialog,
   showDialog,
+  showLoadingToast,
 } from 'vant'
 import cpIcon from '@/components/cpIcon.vue'
 import type { ConsultOrderPreData, PartialConsult } from '@/types/consulet'
-import { createConsultOrder, getConsultOrderPre } from '@/services/cosnult'
+import { createConsultOrder, getConsultOrderPayUrl, getConsultOrderPre } from '@/services/cosnult'
 import { onMounted, ref } from 'vue'
 import { useConsultStore } from '@/stores'
 import type { Patient } from '@/types/user'
@@ -103,6 +104,19 @@ const onClose = () => {
       return true
     })
 }
+const pay = async () => {
+  if (payType.value === undefined) return showToast('请选择支付方式')
+  showLoadingToast({
+    message: '正在跳转支付...',
+    duration: 0,
+  })
+  const res = await getConsultOrderPayUrl({
+    orderId: orderId.value,
+    paymentMethod: payType.value,
+    payCallback: 'http://localhost:5173/room',
+  })
+  window.location.href = res.data.payUrl
+}
 </script>
 
 <template>
@@ -162,7 +176,7 @@ const onClose = () => {
             </van-cell>
           </van-cell-group>
           <div class="btn">
-            <van-button type="primary" round block>立即支付</van-button>
+            <van-button @click="pay" type="primary" round block>立即支付</van-button>
           </div>
         </div>
       </div>
