@@ -30,6 +30,11 @@ const router = createRouter({
       meta: { title: '病情描述' },
     },
     {
+      path: '/consult/pay',
+      component: () => import('@/views/consult/consultPay.vue'),
+      meta: { title: '支付' },
+    },
+    {
       meta: { title: '首页' },
       path: '/',
       redirect: '/home',
