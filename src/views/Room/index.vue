@@ -81,10 +81,10 @@ onUnmounted(() => {
     <!-- 咨询状态栏 -->
     <RoomStatus />
     <!-- 咨询消息框 -->
-    <RoomMessage />
+    <RoomMessage v-for="item in list" :key="item.id" :item="item" />
+
     <!-- 咨询操作栏 -->
     <RoomAction />
-    />
   </div>
 </template>
 <style lang="scss" scoped>

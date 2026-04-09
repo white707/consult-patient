@@ -16,18 +16,7 @@ import type { consultIllness, Image } from '@/types/consulet'
 import { uploadImage } from '@/services/cosnult'
 import { useConsultStore } from '@/stores'
 import { useRouter } from 'vue-router'
-
-const timeOptions = [
-  { label: '一周内', value: IllnessTime.Week },
-  { label: '一月内', value: IllnessTime.Month },
-  { label: '半年内', value: IllnessTime.HalfYear },
-  { label: '半年以上', value: IllnessTime.More },
-]
-
-const flagOptions = [
-  { label: '就诊过', value: 1 },
-  { label: '未就诊', value: 0 },
-]
+import { timeOptions, flagOptions } from '@/services/cosntants'
 
 //病情描述对象
 const form = ref<consultIllness>({

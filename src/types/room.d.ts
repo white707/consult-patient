@@ -1,5 +1,5 @@
 import { MsgType, PrescriptionStatus } from '@/enums'
-import type { Consult, Image } from './consult'
+import type { Consult, Image } from './consulet'
 import type { Patient } from './user'
 
 export type Medical = {
