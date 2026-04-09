@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { Row as VanRow, Icon as VanIcon, Image as VanImage, Col as VanCol } from 'vant'
+import { Row as VanRow, Icon as VanIcon, Image as VanImage, Col as VanCol, GridItem } from 'vant'
+import type { Message } from '@/types/room'
+
+// defineProps<{
+//   item: Message
+// }>()
 </script>
 
 <template>

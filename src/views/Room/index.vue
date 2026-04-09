@@ -8,8 +8,13 @@ import { onMounted, onUnmounted } from 'vue'
 import { baseURL } from '@/utils/request'
 import { useUserStore } from '@/stores'
 import { useRoute } from 'vue-router'
+import type { Message, TimeMessages } from '@/types/room'
+import { MsgType } from '@/enums'
+import { ref } from 'vue'
+
 const route = useRoute()
 const store = useUserStore()
+const list = ref<Message[]>([])
 let socket: Socket
 onMounted(() => {
   socket = io(baseURL, {
@@ -29,8 +34,23 @@ onMounted(() => {
   socket.on('error', () => {
     console.log('连接错误')
   })
-  socket.on('chatMsgList', (res) => {
-    console.log(res)
+
+  //获取聊天记录，第一次（默认消息）
+  socket.on('chatMsgList', ({ data }: { data: TimeMessages[] }) => {
+    //data数据转换成[{createtime},...items]
+    const arr: Message[] = []
+    data.forEach((item) => {
+      arr.push({
+        msgType: MsgType.Notify,
+        msg: {
+          content: item.createTime,
+        },
+        createTime: item.createTime,
+        id: item.createTime,
+      })
+      arr.push(...item.items)
+    })
+    list.value.unshift(...arr)
   })
 })
 
@@ -60,10 +80,11 @@ onUnmounted(() => {
     <cp-nav-bar title="问诊室"></cp-nav-bar>
     <!-- 咨询状态栏 -->
     <RoomStatus />
-    <!-- 咨询操作栏 -->
-    <RoomAction />
     <!-- 咨询消息框 -->
     <RoomMessage />
+    <!-- 咨询操作栏 -->
+    <RoomAction />
+    />
   </div>
 </template>
 <style lang="scss" scoped>
