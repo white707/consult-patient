@@ -1,25 +1,56 @@
 <script setup lang="ts">
-import io from 'socket.io-client'
+import io, { Socket } from 'socket.io-client'
 import RoomMessage from './components/RoomMessage.vue'
 import RoomAction from './components/RoomAction.vue'
 import CpNavBar from '@/components/cpNavBar.vue'
 import RoomStatus from './components/RoomStatus.vue'
-//建立连接
-const socket = io('http://localhost:3000')
-//监听连接成功事件
-socket.on('connect', () => {
-  console.log('连接成功')
-  //发送消息
-  socket.emit('chat message', 'Hello, server!')
+import { onMounted, onUnmounted } from 'vue'
+import { baseURL } from '@/utils/request'
+import { useUserStore } from '@/stores'
+import { useRoute } from 'vue-router'
+const route = useRoute()
+const store = useUserStore()
+let socket: Socket
+onMounted(() => {
+  socket = io(baseURL, {
+    auth: {
+      token: `Bearer ${store.user?.token}`,
+    },
+    query: {
+      orderId: route.query.orderId,
+    },
+  })
+  socket.on('connect', () => {
+    console.log('连接成功')
+  })
+  socket.on('disconnect', () => {
+    console.log('连接断开')
+  })
+  socket.on('error', () => {
+    console.log('连接错误')
+  })
 })
-//监听消息事件
-socket.on('chat message', (msg) => {
-  console.log(msg)
+
+onUnmounted(() => {
   socket.close()
 })
-socket.on('disconnect', () => {
-  console.log('连接断开')
-})
+
+// //建立连接
+// const socket = io('http://localhost:3000')
+// //监听连接成功事件
+// socket.on('connect', () => {
+//   console.log('连接成功')
+//   //发送消息
+//   socket.emit('chat message', 'Hello, server!')
+// })
+// //监听消息事件
+// socket.on('chat message', (msg) => {
+//   console.log(msg)
+//   socket.close()
+// })
+// socket.on('disconnect', () => {
+//   console.log('连接断开')
+// })
 </script>
 <template>
   <div class="room-page">
