@@ -1,8 +1,25 @@
 <script setup lang="ts">
+import io from 'socket.io-client'
 import RoomMessage from './components/RoomMessage.vue'
 import RoomAction from './components/RoomAction.vue'
 import CpNavBar from '@/components/cpNavBar.vue'
 import RoomStatus from './components/RoomStatus.vue'
+//建立连接
+const socket = io('http://localhost:3000')
+//监听连接成功事件
+socket.on('connect', () => {
+  console.log('连接成功')
+  //发送消息
+  socket.emit('chat message', 'Hello, server!')
+})
+//监听消息事件
+socket.on('chat message', (msg) => {
+  console.log(msg)
+  socket.close()
+})
+socket.on('disconnect', () => {
+  console.log('连接断开')
+})
 </script>
 <template>
   <div class="room-page">
