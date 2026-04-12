@@ -71,6 +71,17 @@ onMounted(() => {
 onUnmounted(() => {
   socket.close()
 })
+const onSendText = (text: string) => {
+  // console.log('发送消息：', text)
+  socket.emit('sendChatMsg', {
+    from: store.user?.id,
+    to: cosnult.value?.docInfo?.id,
+    msgType: MsgType.MsgText,
+    msg: {
+      content: text,
+    },
+  })
+}
 
 // //建立连接
 // const socket = io('http://localhost:3000')
@@ -98,7 +109,7 @@ onUnmounted(() => {
     <RoomMessage v-for="item in list" :key="item.id" :item="item" />
 
     <!-- 咨询操作栏 -->
-    <RoomAction :disabled="cosnult?.status !== OrderType.ConsultChat" />
+    <RoomAction @send-text="onSendText" :disabled="cosnult?.status !== OrderType.ConsultChat" />
   </div>
 </template>
 <style lang="scss" scoped>
