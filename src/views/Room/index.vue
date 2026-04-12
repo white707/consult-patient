@@ -11,12 +11,20 @@ import { useRoute } from 'vue-router'
 import type { Message, TimeMessages } from '@/types/room'
 import { MsgType } from '@/enums'
 import { ref } from 'vue'
+import { getCosultOrderDetail } from '@/services/cosnult'
+import type { ConsultOrderItem } from '@/types/consulet'
 
 const route = useRoute()
 const store = useUserStore()
 const list = ref<Message[]>([])
+const cosnult = ref<ConsultOrderItem>()
+const loadConsult = async () => {
+  const res = await getCosultOrderDetail(route.query.orderId as string)
+  cosnult.value = res.data
+}
 let socket: Socket
 onMounted(() => {
+  loadConsult()
   socket = io(baseURL, {
     auth: {
       token: `Bearer ${store.user?.token}`,
@@ -51,6 +59,10 @@ onMounted(() => {
       arr.push(...item.items)
     })
     list.value.unshift(...arr)
+  })
+  //监听订单状态变化
+  socket.on('orderStatusChange', () => {
+    loadConsult()
   })
 })
 
