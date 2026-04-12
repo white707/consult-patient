@@ -12,9 +12,13 @@ import type { Message } from '@/types/room'
 import { IllnessTime, MsgType } from '@/enums'
 import { timeOptions, flagOptions } from '@/services/cosntants'
 import type { Image } from '@/types/consulet'
+import { useUserStore } from '@/stores'
+import dayjs from 'dayjs'
 defineProps<{
   item: Message
 }>()
+
+const store = useUserStore()
 
 //获取患病时间
 const getIllnessTime = (time: IllnessTime) => timeOptions.find((item) => item.value === time)?.label
@@ -26,6 +30,10 @@ const getConsultFlag = (flag: 0 | 1) => flagOptions.find((item) => item.value ==
 const onPreviewImage = (images: Image[]) => {
   if (images && images.length) showImagePreview(images.map((item) => item.url))
   else showToast('暂无图片')
+}
+
+const formatTime = (time: string) => {
+  return dayjs(time).format('HH:mm')
 }
 </script>
 
@@ -72,13 +80,13 @@ const onPreviewImage = (images: Image[]) => {
     </div>
   </div> -->
   <!-- 发送文字 -->
-  <!-- <div class="msg msg-to">
+  <div class="msg msg-to" v-if="item.msgType == MsgType.MsgText && item.from === store.user?.id">
     <div class="content">
-      <div class="time">20:12</div>
-      <div class="pao">大夫你好？</div>
+      <div class="time">{{ formatTime(item.createTime) }}</div>
+      <div class="pao">{{ item.msg.content }}</div>
     </div>
-    <van-image src="https://yjy-oss-files.oss-cn-zhangjiakou.aliyuncs.com/tuxian/popular_3.jpg" />
-  </div> -->
+    <van-image :src="item.fromAvatar" />
+  </div>
   <!-- 发送图片 -->
   <!-- <div class="msg msg-to">
     <div class="content">
@@ -91,13 +99,13 @@ const onPreviewImage = (images: Image[]) => {
     <van-image src="https://yjy-oss-files.oss-cn-zhangjiakou.aliyuncs.com/tuxian/popular_3.jpg" /> -->
   <!-- </div> -->
   <!-- 接收文字 -->
-  <!-- <div class="msg msg-from">
-    <van-image src="https://yjy-oss-files.oss-cn-zhangjiakou.aliyuncs.com/tuxian/popular_3.jpg" />
+  <div v-if="item.msgType == MsgType.MsgText && item.from !== store.user?.id" class="msg msg-from">
+    <van-image :src="item.fromAvatar" />
     <div class="content">
-      <div class="time">20:12</div>
-      <div class="pao">哪里不舒服</div>
+      <div class="time">{{ formatTime(item.createTime) }}</div>
+      <div class="pao">{{ item.msg.content }}</div>
     </div>
-  </div> -->
+  </div>
   <!-- 接收图片 -->
   <!-- <div class="msg msg-from">
     <van-image src="https://yjy-oss-files.oss-cn-zhangjiakou.aliyuncs.com/tuxian/popular_3.jpg" />
