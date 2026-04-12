@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { Field as VanField, Uploader as VanUploader } from 'vant'
 import CpIcon from '@/components/cpIcon.vue'
+defineProps<{
+  disabled?: boolean
+}>()
 </script>
 
 <template>
@@ -11,9 +14,9 @@ import CpIcon from '@/components/cpIcon.vue'
       :border="false"
       placeholder="问医生"
       autocomplete="off"
-      :disabled="true"
+      :disabled="disabled"
     ></van-field>
-    <van-uploader :preview-image="false" :disabled="true">
+    <van-uploader :preview-image="false" :disabled="disabled">
       <cp-icon name="consult-img" />
     </van-uploader>
   </div>

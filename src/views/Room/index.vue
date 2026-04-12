@@ -11,6 +11,8 @@ import { useRoute } from 'vue-router'
 import type { Message, TimeMessages } from '@/types/room'
 import { MsgType } from '@/enums'
 import { ref } from 'vue'
+import { OrderType } from '@/enums'
+
 import { getCosultOrderDetail } from '@/services/cosnult'
 import type { ConsultOrderItem } from '@/types/consulet'
 
@@ -91,12 +93,12 @@ onUnmounted(() => {
   <div class="room-page">
     <cp-nav-bar title="问诊室"></cp-nav-bar>
     <!-- 咨询状态栏 -->
-    <RoomStatus />
+    <RoomStatus :status="cosnult?.status" :countdown="cosnult?.countdown" />
     <!-- 咨询消息框 -->
     <RoomMessage v-for="item in list" :key="item.id" :item="item" />
 
     <!-- 咨询操作栏 -->
-    <RoomAction />
+    <RoomAction :disabled="cosnult?.status !== OrderType.ConsultChat" />
   </div>
 </template>
 <style lang="scss" scoped>
