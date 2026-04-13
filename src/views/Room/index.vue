@@ -12,14 +12,16 @@ import type { Message, TimeMessages } from '@/types/room'
 import { MsgType } from '@/enums'
 import { ref, nextTick } from 'vue'
 import { OrderType } from '@/enums'
-
+import { showToast, PullRefresh as VanPullRefresh } from 'vant'
 import { getCosultOrderDetail } from '@/services/cosnult'
 import type { ConsultOrderItem, Image } from '@/types/consulet'
+import dayjs from 'dayjs'
 
 const route = useRoute()
 const store = useUserStore()
 const list = ref<Message[]>([])
 const cosnult = ref<ConsultOrderItem>()
+const initialMsg = ref(true)
 const loadConsult = async () => {
   const res = await getCosultOrderDetail(route.query.orderId as string)
   cosnult.value = res.data
@@ -49,7 +51,9 @@ onMounted(() => {
   socket.on('chatMsgList', ({ data }: { data: TimeMessages[] }) => {
     //data数据转换成[{createtime},...items]
     const arr: Message[] = []
-    data.forEach((item) => {
+    data.forEach((item, i) => {
+      //记录每一段消息中最早的一段时间，获取聊天记录时使用
+      if (i == 0) time.value = item.createTime
       arr.push({
         msgType: MsgType.Notify,
         msg: {
@@ -61,6 +65,17 @@ onMounted(() => {
       arr.push(...item.items)
     })
     list.value.unshift(...arr)
+
+    loading.value = false
+    if (!arr.length) return showToast('没有更多消息')
+
+    if (initialMsg.value) {
+      //第一次需要滚动到最新消息
+      nextTick(() => {
+        window.scrollTo(0, document.body.scrollHeight)
+      })
+      initialMsg.value = false
+    }
   })
   //监听订单状态变化
   socket.on('orderStatusChange', () => {
@@ -120,14 +135,25 @@ const onSendImage = (image: Image) => {
     },
   })
 }
+
+//下拉刷新
+const loading = ref(false)
+const time = ref(dayjs().format('YYYY-MM-DD HH:mm:ss'))
+const onRefresh = async () => {
+  // console.log('刷新了')
+  socket.emit('getChatMsgList', 20, time.value, cosnult.value?.id)
+  // loading.value = false
+}
 </script>
 <template>
   <div class="room-page">
     <cp-nav-bar title="问诊室"></cp-nav-bar>
     <!-- 咨询状态栏 -->
     <RoomStatus :status="cosnult?.status" :countdown="cosnult?.countdown" />
-    <!-- 咨询消息框 -->
-    <RoomMessage v-for="item in list" :key="item.id" :item="item" />
+    <van-pull-refresh v-model="loading" @refresh="onRefresh">
+      <!-- 咨询消息框 -->
+      <RoomMessage v-for="item in list" :key="item.id" :item="item" />
+    </van-pull-refresh>
 
     <!-- 咨询操作栏 -->
     <RoomAction
