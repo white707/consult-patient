@@ -14,7 +14,7 @@ import { ref, nextTick } from 'vue'
 import { OrderType } from '@/enums'
 
 import { getCosultOrderDetail } from '@/services/cosnult'
-import type { ConsultOrderItem } from '@/types/consulet'
+import type { ConsultOrderItem, Image } from '@/types/consulet'
 
 const route = useRoute()
 const store = useUserStore()
@@ -107,6 +107,19 @@ const onSendText = (text: string) => {
 // socket.on('disconnect', () => {
 //   console.log('连接断开')
 // })
+
+//发送图片信息
+const onSendImage = (image: Image) => {
+  // console.log(image)
+  socket.emit('sendChatMsg', {
+    from: store.user?.id,
+    to: cosnult.value?.docInfo?.id,
+    msgType: MsgType.MsgImage,
+    msg: {
+      picture: image,
+    },
+  })
+}
 </script>
 <template>
   <div class="room-page">
@@ -117,7 +130,11 @@ const onSendText = (text: string) => {
     <RoomMessage v-for="item in list" :key="item.id" :item="item" />
 
     <!-- 咨询操作栏 -->
-    <RoomAction @send-text="onSendText" :disabled="cosnult?.status !== OrderType.ConsultChat" />
+    <RoomAction
+      @send-image="onSendImage"
+      @send-text="onSendText"
+      :disabled="cosnult?.status !== OrderType.ConsultChat"
+    />
   </div>
 </template>
 <style lang="scss" scoped>

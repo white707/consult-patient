@@ -88,16 +88,13 @@ const formatTime = (time: string) => {
     <van-image :src="item.fromAvatar" />
   </div>
   <!-- 发送图片 -->
-  <!-- <div class="msg msg-to">
+  <div v-if="item.msgType == MsgType.MsgImage && item.from !== store.user?.id" class="msg msg-to">
     <div class="content">
-      <div class="time">20:12</div>
-      <van-image
-        fit="contain"
-        src="https://yjy-oss-files.oss-cn-zhangjiakou.aliyuncs.com/tuxian/popular_3.jpg"
-      />
+      <div class="time">{{ formatTime(item.createTime) }}</div>
+      <van-image fit="contain" :src="item.msg.picture?.url" />
     </div>
-    <van-image src="https://yjy-oss-files.oss-cn-zhangjiakou.aliyuncs.com/tuxian/popular_3.jpg" /> -->
-  <!-- </div> -->
+    <van-image :src="item.fromAvatar" />
+  </div>
   <!-- 接收文字 -->
   <div v-if="item.msgType == MsgType.MsgText && item.from !== store.user?.id" class="msg msg-from">
     <van-image :src="item.fromAvatar" />
@@ -107,16 +104,13 @@ const formatTime = (time: string) => {
     </div>
   </div>
   <!-- 接收图片 -->
-  <!-- <div class="msg msg-from">
-    <van-image src="https://yjy-oss-files.oss-cn-zhangjiakou.aliyuncs.com/tuxian/popular_3.jpg" />
+  <div v-if="item.msgType == MsgType.MsgImage && item.from !== store.user?.id" class="msg msg-from">
+    <van-image :src="item.fromAvatar" />
     <div class="content">
-      <div class="time">20:12</div>
-      <van-image
-        fit="contain"
-        src="https://yjy-oss-files.oss-cn-zhangjiakou.aliyuncs.com/tuxian/popular_3.jpg"
-      />
+      <div class="time">{{ formatTime(item.createTime) }}</div>
+      <van-image fit="contain" :src="item.msg.picture?.url" />
     </div>
-  </div> -->
+  </div>
   <!-- 处方卡片
   <div class="msg msg-recipe">
     <div class="content">

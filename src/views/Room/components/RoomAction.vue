@@ -1,18 +1,39 @@
 <script setup lang="ts">
-import { Field as VanField, Uploader as VanUploader } from 'vant'
+import {
+  showLoadingToast,
+  Field as VanField,
+  Uploader as VanUploader,
+  type UploaderAfterRead,
+} from 'vant'
 import CpIcon from '@/components/cpIcon.vue'
 import { ref } from 'vue'
+import { uploadImage } from '@/services/cosnult'
+import type { Image } from '@/types/consulet'
 defineProps<{
   disabled?: boolean
 }>()
 
 const emit = defineEmits<{
   (e: 'send-text', text: string): void
+  (e: 'send-image', image: Image): void
 }>()
 const text = ref('')
 const sendText = () => {
   emit('send-text', text.value)
   text.value = ''
+}
+
+//上传图片
+const sendImage: UploaderAfterRead = async (item) => {
+  if (Array.isArray(item)) return
+  if (!item.file) return
+  const t = showLoadingToast({
+    message: '图片上传中...',
+    duration: 0,
+  })
+  const res = await uploadImage(item.file)
+  t.close()
+  emit('send-image', res.data)
 }
 </script>
 
@@ -28,7 +49,7 @@ const sendText = () => {
       :disabled="disabled"
       @keyup.enter="sendText"
     ></van-field>
-    <van-uploader :preview-image="false" :disabled="disabled">
+    <van-uploader :after-read="sendImage" :preview-image="false" :disabled="disabled">
       <cp-icon name="consult-img" />
     </van-uploader>
   </div>
